@@ -1,45 +1,26 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import UserManagement from './UserManagement';
 import RoleManagement from './RoleManagement';
 import PermissionManagement from './PermissionManagement';
+import mockApi from './mockApi';
 
 const App = () => {
-    const [users, setUsers] = useState([]);
-    const [rolesWithPermissions, setRolesWithPermissions] = useState([
-        {
-            name: 'Admin',
-            permissions: [
-                { name: 'Read Users', isAssigned: true },
-                { name: 'Write Users', isAssigned: true },
-                { name: 'Delete Users', isAssigned: true },
-            ],
-        },
-        {
-            name: 'Editor',
-            permissions: [
-                { name: 'Read Users', isAssigned: true },
-                { name: 'Write Users', isAssigned: false },
-                { name: 'Delete Users', isAssigned: false },
-            ],
-        },
-        {
-            name: 'Viewer',
-            permissions: [
-                { name: 'Read Users', isAssigned: true },
-                { name: 'Write Users', isAssigned: false },
-                { name: 'Delete Users', isAssigned: false },
-            ],
-        },
-    ]);
+  const [users, setUsers] = useState([]);
+  const [roles, setRoles] = useState([]);
 
-    return (
-        <div className="app">
-            <h1>RBAC Admin Dashboard</h1>
-            <UserManagement users={users} setUsers={setUsers} />
-            <RoleManagement roles={rolesWithPermissions} setRoles={setRolesWithPermissions} />
-            <PermissionManagement rolesWithPermissions={rolesWithPermissions} setRolesWithPermissions={setRolesWithPermissions} />
-        </div>
-    );
+  useEffect(() => {
+    mockApi.fetchUsers().then(setUsers);
+    mockApi.fetchRoles().then(setRoles);
+  }, []);
+
+  return (
+    <div className="container">
+      <h1>Admin Dashboard</h1>
+      <UserManagement users={users} setUsers={setUsers} roles={roles} />
+      <RoleManagement roles={roles} setRoles={setRoles} />
+      <PermissionManagement roles={roles} />
+    </div>
+  );
 };
 
 export default App;
