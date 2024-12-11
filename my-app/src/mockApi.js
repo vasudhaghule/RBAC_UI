@@ -1,40 +1,31 @@
+let users = [
+  { id: 1, name: "John Doe", email: "john@example.com", role: "Admin", status: "Active" },
+];
 
-const mockApi = (() => {
-  let users = [];
-  let roles = ['Admin', 'Editor', 'Viewer'];
+let roles = [
+  { id: 1, name: "Admin", permissions: ["Read", "Write", "Delete"] },
+];
 
-  return {
-    fetchUsers: () =>
-      new Promise((resolve) => setTimeout(() => resolve([...users]), 500)),
-    addUser: (user) =>
-      new Promise((resolve) => {
-        users.push(user);
-        setTimeout(() => resolve(user), 500);
-      }),
-    deleteUser: (email) =>
-      new Promise((resolve) => {
-        users = users.filter((user) => user.email !== email);
-        setTimeout(() => resolve(), 500);
-      }),
+const mockApi = {
+  fetchUsers: () => Promise.resolve(users),
+  
+  addUser: (user) => {
+    users.push({ id: users.length + 1, ...user });
+    return Promise.resolve();
+  },
+  
+  deleteUser: (email) => {
+    users = users.filter(user => user.email !== email);
+    return Promise.resolve();
+  },
+  
+  fetchRoles: () => Promise.resolve(roles),
+  
+  addRole: (role) => {
+    roles.push({ id: roles.length + 1, ...role });
+    return Promise.resolve();
+  },
 
-
-    fetchRoles: () =>
-      new Promise((resolve) => setTimeout(() => resolve([...roles]), 500)),
-    addRole: (role) =>
-      new Promise((resolve, reject) => {
-        if (roles.includes(role)) {
-          setTimeout(() => reject(new Error('Role already exists')), 500);
-        } else {
-          roles.push(role);
-          setTimeout(() => resolve(role), 500);
-        }
-      }),
-    deleteRole: (role) =>
-      new Promise((resolve) => {
-        roles = roles.filter((r) => r !== role);
-        setTimeout(() => resolve(), 500);
-      }),
-  };
-})();
+};
 
 export default mockApi;
