@@ -1,15 +1,51 @@
 import React, { useState } from 'react';
 
-const UserManagement = ({ users, setUsers }) => {
+const UserManagement = ({ users, setUsers, roles }) => {
   const [newUser, setNewUser] = useState({ name: '', email: '', role: '', status: 'Active' });
+  const [editingUserEmail, setEditingUserEmail] = useState(null);
 
   const handleAddUser = () => {
-    setUsers([...users, newUser]);
+    if (newUser.name && newUser.email && newUser.role) {
+      if (users.find(user => user.email === newUser.email)) {
+        alert("User with this email already exists.");
+        return;
+      }
+      setUsers([...users, { ...newUser }]);
+      setNewUser({ name: '', email: '', role: '', status: 'Active' });
+    } else {
+      alert("Please fill in all fields.");
+    }
+  };
+
+  const handleEditUser = (user) => {
+    setEditingUserEmail(user.email);
+    setNewUser(user);
+  };
+
+  
+  const handleSaveEdit = () => {
+    if (!newUser.name || !newUser.email || !newUser.role) {
+      alert("Please fill in all fields.");
+      return;
+    }
+    setUsers(users.map(user =>
+      user.email === editingUserEmail ? { ...newUser } : user
+    ));
+    setEditingUserEmail(null);
     setNewUser({ name: '', email: '', role: '', status: 'Active' });
   };
 
   const handleDeleteUser = (email) => {
-    setUsers(users.filter(user => user.email !== email));
+    if (window.confirm("Are you sure you want to delete this user?")) {
+      setUsers(users.filter(user => user.email !== email));
+    }
+  };
+
+  
+  const toggleStatus = (email) => {
+    setUsers(users.map(user =>
+      user.email === email ? { ...user, status: user.status === 'Active' ? 'Inactive' : 'Active' } : user
+    ));
   };
 
   return (
@@ -32,16 +68,25 @@ const UserManagement = ({ users, setUsers }) => {
         onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
       >
         <option value="">Select Role</option>
-        <option value="Admin">Admin</option>
-        <option value="Editor">Editor</option>
-        <option value="Viewer">Viewer</option>
+        {roles.map(role => (
+          <option key={role.id} value={role.name}>{role.name}</option>
+        ))}
       </select>
-      <button onClick={handleAddUser}>Add User</button>
+      <button onClick={editingUserEmail ? handleSaveEdit : handleAddUser}>
+        {editingUserEmail ? 'Update User' : 'Add User'}
+      </button>
 
       <ul>
-        {users.map((user) => (
+        {users.map(user => (
           <li key={user.email}>
             {user.name} - {user.email} - {user.role} - {user.status}
+            <button onClick={() => handleEditUser(user)}>Edit</button>
+            <button
+              onClick={() => toggleStatus(user.email)}
+              disabled={user.status === (user.status === 'Active' ? 'Inactive' : 'Active')}
+            >
+              {user.status === 'Active' ? 'Deactivate' : 'Activate'}
+            </button>
             <button onClick={() => handleDeleteUser(user.email)}>Delete</button>
           </li>
         ))}
